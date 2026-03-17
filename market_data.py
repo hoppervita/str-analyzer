@@ -807,6 +807,178 @@ PERMIT_DATA = {
     },
 }
 
+# ── Bare Land & Build-to-Own Data ─────────────────────────────────────────────
+# Sources: Zillow/LandWatch/Lands of America listings, local contractor estimates,
+#          county assessors, NAHB cost data.
+# Build cost per sqft = turnkey finished cabin (foundation to finish).
+LAND_DATA = {
+    "Lander, WY": {
+        "lot_price_low":          20_000,   # In-town residential lot
+        "lot_price_high":         65_000,   # In-town larger lot / view lot
+        "acreage_price_per_acre":  1_500,   # Rural Fremont County sagebrush/grassland
+        "typical_lot_sizes":       "7,500–15,000 sqft in town; 2–40+ acres rural",
+        "utilities_to_lot":        "Municipal water/sewer available in-town; rural = well + septic required",
+        "well_septic_cost":        18_000,  # Estimate: well $8k + septic $10k
+        "new_build_cost_per_sqft":    175,  # WY stick frame; low labor cost; no energy code mandate
+        "new_build_cost_low":     130,      # Modest cabin
+        "new_build_cost_high":    220,      # Better finish level
+        "build_timeline":          "4–8 months (permit + construction)",
+        "land_availability":       "Good — 41–82 active residential listings; rural land abundant",
+        "zoning_notes": (
+            "City of Lander: residential R-1/R-2 zones allow single-family + ADU. "
+            "Unincorporated Fremont County: no zoning in most areas — build what you want on rural land. "
+            "No minimum lot size in unincorporated areas. "
+            "Wyoming has no statewide building code — unincorporated builds may need no permits."
+        ),
+        "buy_vs_build": (
+            "Building from scratch makes strong sense in Lander. Low land + construction costs mean "
+            "a custom 1,200 sqft STR cabin can be delivered for $200k–$250k all-in (land + build). "
+            "Comparable existing cabins list at $280k–$380k. The spread funds your time and profit. "
+            "Target unincorporated Fremont County for minimal permit friction."
+        ),
+        "best_opportunity": (
+            "Rural 2–5 acre parcels with Wind River Range views for $10k–$40k. "
+            "Build a 2BR/2BA cabin with a loft and hot tub targeting climbers + hunters. "
+            "Total cost ~$200k; revenue potential ~$35k–$50k/yr."
+        ),
+    },
+    "Alpine, WY": {
+        "lot_price_low":          75_000,   # Basic residential lot in subdivision
+        "lot_price_high":         200_000,  # River/reservoir access, view lots
+        "acreage_price_per_acre":  8_000,   # Teton/Lincoln County mountain acreage
+        "typical_lot_sizes":       "0.25–2 acres in subdivisions; larger parcels outside town",
+        "utilities_to_lot":        "Some subdivisions have municipal water; most rural = well + septic",
+        "well_septic_cost":        22_000,  # Higher elevation + Rocky Mountain well costs
+        "new_build_cost_per_sqft":    250,  # WY rates but snow load engineering adds cost
+        "new_build_cost_low":     210,      # Simple cabin
+        "new_build_cost_high":    320,      # Quality mountain home with snow load engineering
+        "build_timeline":          "6–10 months (permit + construction; schedule early before summer season)",
+        "land_availability":       "Limited — tight market, subdivision lots sell quickly",
+        "zoning_notes": (
+            "Town of Alpine: minimal zoning, residential lots allow single-family. "
+            "Unincorporated Lincoln County: very light zoning, permissive for residential builds. "
+            "⚠️ HOA CHECK: Many platted lots are in Alpine Meadows HOA or Alpine Village Resort HOA. "
+            "Buy non-HOA lots in unincorporated Lincoln County for maximum flexibility. "
+            "Snow load engineering is mandatory — 40–60 psf minimum design requirement."
+        ),
+        "buy_vs_build": (
+            "Build economics are tighter in Alpine due to higher land + construction costs. "
+            "A 1,500 sqft cabin on a $120k lot costs ~$495k–$600k all-in. "
+            "Existing comps start at $450k–$750k, so the spread is smaller than Lander or KY. "
+            "Build-to-own works best for custom river/reservoir-access properties where "
+            "finished comps are $800k+ — building saves $150k–$250k."
+        ),
+        "best_opportunity": (
+            "Non-HOA lots on Greys River Road or unincorporated Lincoln County side roads. "
+            "Avoid platted subdivisions with HOA covenants that may restrict STR. "
+            "A non-HOA lot with Palisades Reservoir access view is the target: $80k–$150k."
+        ),
+    },
+    "Nederland, CO": {
+        "lot_price_low":          150_000,  # Bare mountain lot, limited buildability
+        "lot_price_high":         450_000,  # Finished lot with utilities, views
+        "acreage_price_per_acre":  35_000,  # Boulder County mountain acreage (scarce)
+        "typical_lot_sizes":       "0.25–2 acres; very limited supply within Nederland town limits",
+        "utilities_to_lot":        "Town water available on some lots; most rely on well + septic. Expensive.",
+        "well_septic_cost":        35_000,  # Boulder County septic = $15k–$25k; well $10k–$15k
+        "new_build_cost_per_sqft":    450,  # CO energy code + Boulder County overhead is brutal
+        "new_build_cost_low":     380,      # Bare minimum compliance build
+        "new_build_cost_high":    575,      # Quality mountain home with all Boulder County requirements
+        "build_timeline":          "12–24 months (Boulder County plan review alone = 3–6 months)",
+        "land_availability":       "Very limited — few undeveloped lots remain; high competition",
+        "zoning_notes": (
+            "⚠️ Boulder County is among CO's most restrictive jurisdictions for land use. "
+            "Residential zoning: RR (Rural Residential) requires owner-occupancy for STR — same as buying existing. "
+            "Minimum lot sizes vary but typically 2+ acres for new septic in unincorporated area. "
+            "Defensible space plan required. Wildfire mitigation measures mandatory. "
+            "HERS energy rating, soils report, engineered septic design all required before permit issuance."
+        ),
+        "buy_vs_build": (
+            "Building from scratch in Nederland/Boulder County is generally NOT recommended for STR investors. "
+            "Permit timeline (12–24 months), cost (45% above national avg), and the owner-occupancy STR rule "
+            "stack the deck against it. Total cost to build a 1,500 sqft cabin: $900k–$1.1M all-in. "
+            "Buying an existing home costs the same or less with far less time/risk. "
+            "Only consider building if you own land already or find a sub-$100k lot with utilities."
+        ),
+        "best_opportunity": (
+            "If building, target unincorporated Boulder County parcels outside Nederland town limits "
+            "where regulations are slightly lighter. Or look at Gilpin County parcels (10–20 min away) "
+            "at a fraction of the cost and permit burden."
+        ),
+    },
+    "Gilpin County, CO": {
+        "lot_price_low":          40_000,   # Unincorporated mountain parcel, steep/raw
+        "lot_price_high":         175_000,  # Finished lot, utilities accessible, flat/buildable
+        "acreage_price_per_acre":  15_000,  # Gilpin County mountain acreage
+        "typical_lot_sizes":       "0.5–5 acres; larger parcels available in unincorporated areas",
+        "utilities_to_lot":        "No municipal water/sewer in unincorporated areas — well + septic required",
+        "well_septic_cost":        28_000,  # Mountain well + engineered septic; rocky soil adds cost
+        "new_build_cost_per_sqft":    320,  # CO IRC required but fewer local amendments than Boulder
+        "new_build_cost_low":     265,      # Simple cabin, modest finish
+        "new_build_cost_high":    400,      # Quality mountain STR cabin, hot tub, good finishes
+        "build_timeline":          "6–10 months (permit 2–6 weeks + construction)",
+        "land_availability":       "Moderate — more available than Nederland; thin market but parcels exist",
+        "zoning_notes": (
+            "Unincorporated Gilpin County has minimal zoning — far less restrictive than Boulder County. "
+            "Residential builds require Colorado IRC compliance (structural, electrical, plumbing). "
+            "Engineer stamp required for structural work. "
+            "⚠️ MINE HAZARD: Geotechnical investigation required before building on any parcel. "
+            "Some lots over historic mine workings will not receive building permits. "
+            "Confirm with Gilpin County Community Development before purchasing any lot."
+        ),
+        "buy_vs_build": (
+            "Build economics are compelling. A buildable lot at $75k + $400k construction for "
+            "a 1,250 sqft custom STR cabin = ~$500k–$525k all-in. "
+            "Comparable existing listings run $500k–$650k. "
+            "The advantage: custom design for STR (hot tub, open floor plan, gorge views) "
+            "achieves top-quartile STR revenue vs generic existing homes. "
+            "Radon mitigation and mine subsidence check add ~$2k–$5k but are essential pre-purchase steps."
+        ),
+        "best_opportunity": (
+            "Rollinsville/Pinecliffe area lots: close to Moffat Tunnel trailhead, Eldora views, "
+            "Denver market. Look for 1–2 acre parcels with mature trees and mountain exposure. "
+            "Avoid lots in the Black Hawk/Central City gaming district."
+        ),
+    },
+    "Red River Gorge, KY": {
+        "lot_price_low":          15_000,   # Raw rural acreage, no improvements
+        "lot_price_high":         80_000,   # Gorge-adjacent cabin-ready lot, ridgeline
+        "acreage_price_per_acre":  2_500,   # Powell/Wolfe County wooded mountain acreage
+        "typical_lot_sizes":       "1–10+ acres; large rural tracts abundant; few subdivided lots",
+        "utilities_to_lot":        "No municipal services in rural gorge area — well + septic required",
+        "well_septic_cost":        20_000,  # Well ~$8k–$12k; septic $8k–$12k in KY
+        "new_build_cost_per_sqft":    150,  # Kentucky has some of the lowest construction labor costs in US
+        "new_build_cost_low":     120,      # Basic cabin/stick frame
+        "new_build_cost_high":    200,      # Quality STR cabin with custom finishes, hot tub, deck
+        "build_timeline":          "4–7 months (permit 3–8 weeks + construction)",
+        "land_availability":       "Excellent — abundant rural land; gorge-adjacent parcels actively listed",
+        "zoning_notes": (
+            "⭐ No county-wide zoning in unincorporated Powell, Wolfe, or Menifee County. "
+            "No minimum lot size in unincorporated areas. Build what you want, where you want. "
+            "Kentucky Residential Code (KRC/IRC 2018) applies statewide for new construction. "
+            "Engineer stamp required for structural elements. "
+            "Septic permit through county health department (relatively straightforward). "
+            "Well permit through KY Division of Water. "
+            "⚠️ FLOOD RULE: Avoid any lot in a FEMA floodplain — verify msc.fema.gov before purchase. "
+            "Ridgeline and hillside lots are outside flood zones and command better STR views."
+        ),
+        "buy_vs_build": (
+            "⭐ The strongest build-vs-buy case of any market researched. "
+            "A 2-acre ridgeline lot at $35k + custom 1,200 sqft cabin at $150/sqft = ~$215k all-in. "
+            "A comparable existing cabin in the gorge area lists at $250k–$350k. "
+            "But the real advantage is STR design: a purpose-built treehouse/cabin with gorge views "
+            "and hot tub can earn $65k–$110k/yr (top quartile) vs $35k–$50k for a generic resale cabin. "
+            "Build-to-STR is Trevor's highest-upside play across all five markets."
+        ),
+        "best_opportunity": (
+            "Ridgeline lots within 2–5 miles of Slade/Miguel's Pizza corridor. "
+            "Target 2–5 acre wooded parcels with gorge or cliff views. "
+            "Build a treehouse or elevated log cabin with hot tub and large deck. "
+            "Sell the experience, not just the beds — top KY gorge STRs are Instagram-worthy builds."
+        ),
+    },
+}
+
 # ── Environmental Risks ────────────────────────────────────────────────────────
 # Risk levels: "Low", "Moderate", "High", "Very High"
 # Scores: 1 (minimal) → 10 (severe)

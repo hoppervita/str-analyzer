@@ -1,6 +1,6 @@
 """
 Short-Term Rental Investment Analyzer
-Markets: Lander WY · Alpine WY · Nederland CO · Gilpin County CO
+Markets: Lander WY · Alpine WY · Nederland CO · Gilpin County CO · Red River Gorge KY
 """
 
 import streamlit as st
@@ -13,7 +13,7 @@ import numpy as np
 from market_data import (
     MARKET_STATS, PRICE_HISTORY, STR_DATA, STR_REGULATIONS,
     STR_OPERATING_COSTS, SAMPLE_PROPERTIES, ZIP_CODES,
-    PERMIT_DATA, ENVIRONMENTAL_RISKS,
+    PERMIT_DATA, ENVIRONMENTAL_RISKS, LAND_DATA,
 )
 import calculations as calc
 
@@ -166,6 +166,28 @@ with tab1:
                 st.markdown(f"- {driver}")
             st.caption(f"Peak: {', '.join(STR_DATA[mkt]['peak_seasons'])}")
             st.caption(f"Slow: {', '.join(STR_DATA[mkt]['slow_seasons'])}")
+
+    st.divider()
+
+    # ── Bare land overview ─────────────────────────────────────────────────────
+    with st.expander("🏗️ Bare Land & Build-to-Own Overview", expanded=False):
+        st.caption(
+            "Buying land and building new can deliver custom STR properties at lower cost than "
+            "buying existing — especially in markets with low land prices and light permitting."
+        )
+        land_cols = st.columns(len(selected_markets))
+        for i, mkt in enumerate(selected_markets):
+            if mkt not in LAND_DATA:
+                continue
+            ld = LAND_DATA[mkt]
+            with land_cols[i]:
+                st.markdown(f"**{mkt}**")
+                st.metric("Lot Price Range", f"${ld['lot_price_low']:,.0f}–${ld['lot_price_high']:,.0f}")
+                st.metric("Rural $/acre", f"${ld['acreage_price_per_acre']:,.0f}")
+                st.metric("Build Cost/sqft", f"${ld['new_build_cost_low']}–${ld['new_build_cost_high']}")
+                st.metric("Build Timeline", ld["build_timeline"])
+                st.caption(f"**Land availability:** {ld['land_availability']}")
+                st.caption(f"**Best opportunity:** {ld['best_opportunity']}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -462,6 +484,72 @@ with tab2:
     })
     st.dataframe(summary_df, use_container_width=True)
 
+    # ── Build from scratch calculator ─────────────────────────────────────────
+    st.divider()
+    with st.expander("🏗️ Build from Scratch Calculator", expanded=False):
+        st.caption("Compare buying existing vs. building new on bare land.")
+        if market_sel in LAND_DATA:
+            ld = LAND_DATA[market_sel]
+            bc1, bc2, bc3 = st.columns(3)
+            land_cost = bc1.number_input(
+                "Land/Lot Cost ($)",
+                min_value=5_000, max_value=500_000,
+                value=int((ld["lot_price_low"] + ld["lot_price_high"]) / 2),
+                step=5_000, format="%d", key="land_cost"
+            )
+            build_sqft = bc2.number_input(
+                "Cabin Size (sqft)",
+                min_value=400, max_value=4_000,
+                value=1_200, step=100, key="build_sqft"
+            )
+            build_rate = bc3.number_input(
+                "Build Cost ($/sqft)",
+                min_value=80, max_value=600,
+                value=ld["new_build_cost_per_sqft"],
+                step=5, key="build_rate"
+            )
+
+            well_septic = ld["well_septic_cost"]
+            construction = build_sqft * build_rate
+            total_build = land_cost + construction + well_septic
+            existing_median = ms["median_price"]
+            savings = existing_median - total_build
+
+            rb1, rb2, rb3, rb4 = st.columns(4)
+            rb1.metric("Land + Well/Septic", f"${land_cost + well_septic:,.0f}")
+            rb2.metric("Construction Cost", f"${construction:,.0f}")
+            rb3.metric("Total All-In", f"${total_build:,.0f}")
+            rb4.metric("vs. Buying Existing (median)",
+                       f"${savings:,.0f} {'savings' if savings > 0 else 'premium'}",
+                       delta_color="normal" if savings >= 0 else "inverse")
+
+            build_pmt = calc.monthly_mortgage(total_build, down_pct, rate, term)
+            build_cash_to_close = calc.total_cash_to_close(total_build, down_pct, closing_pct)
+            build_gross = calc.str_monthly_revenue(str_d["avg_nightly_rate"],
+                                                    str_d["avg_occupancy"],
+                                                    costs["platform_fee_pct"])
+            build_expenses = calc.str_monthly_expenses(
+                total_build, market_sel, build_gross, self_manage,
+                costs["avg_stays_per_mo"], costs
+            )
+            build_prop_tax = calc.property_tax_monthly(total_build, ms["property_tax_rate"])
+            build_net = build_gross - sum(build_expenses.values()) - build_prop_tax
+            build_cf = build_net - build_pmt
+
+            st.markdown("**New Build STR Cash Flow (using market-average STR rates):**")
+            cf1, cf2, cf3, cf4 = st.columns(4)
+            cf1.metric("Monthly Mortgage", f"${build_pmt:,.0f}")
+            cf2.metric("STR Net Revenue", f"${build_net:,.0f}/mo")
+            cf3.metric("Monthly Cash Flow", f"${build_cf:,.0f}",
+                       delta_color="normal" if build_cf >= 0 else "inverse")
+            cf4.metric("Cash to Close", f"${build_cash_to_close:,.0f}")
+
+            st.info(ld["buy_vs_build"])
+            st.caption(f"Well + septic estimate: ${well_septic:,.0f} | Typical lot sizes: {ld['typical_lot_sizes']}")
+            st.caption(f"Utilities: {ld['utilities_to_lot']}")
+        else:
+            st.info("Land data not available for this market.")
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 3 — STR INCOME DEEP-DIVE
@@ -670,6 +758,40 @@ with tab3:
         })
     st.dataframe(pd.DataFrame(cost_rows).set_index("Market"), use_container_width=True)
 
+    # ── New build STR premium ──────────────────────────────────────────────────
+    with st.expander("🏗️ New Build STR Revenue Advantage", expanded=False):
+        st.markdown(
+            "Purpose-built STR properties consistently outperform generic resale homes. "
+            "A custom cabin designed for short-term rental — with hot tub, open floor plan, "
+            "gorge/mountain views, and Instagram-worthy design — can reach the **top 25%** of "
+            "revenue performance vs a typical resale home at median."
+        )
+        nb_rows = []
+        for mkt in selected_markets:
+            if mkt not in LAND_DATA or mkt not in STR_DATA:
+                continue
+            ld = LAND_DATA[mkt]
+            str_m = STR_DATA[mkt]
+            median_rev = str_m["avg_annual_revenue"]
+            top25_rev = int(median_rev * 1.4)   # approx top 25% uplift
+            top10_rev = str_m["top10_annual_revenue"]
+            all_in_low = ld["lot_price_low"] + 1_200 * ld["new_build_cost_low"] + ld["well_septic_cost"]
+            all_in_high = ld["lot_price_high"] + 1_200 * ld["new_build_cost_high"] + ld["well_septic_cost"]
+            nb_rows.append({
+                "Market": mkt,
+                "Median Resale Rev/yr": f"${median_rev:,.0f}",
+                "Target: Top 25% Rev/yr": f"${top25_rev:,.0f}",
+                "Top 10% Rev/yr": f"${top10_rev:,.0f}",
+                "New Build All-In (1,200 sqft)": f"${all_in_low:,.0f}–${all_in_high:,.0f}",
+                "Build Cost/sqft Range": f"${ld['new_build_cost_low']}–${ld['new_build_cost_high']}",
+            })
+        st.dataframe(pd.DataFrame(nb_rows).set_index("Market"), use_container_width=True)
+        st.caption(
+            "All-In = lot (midpoint) + 1,200 sqft build + well/septic. "
+            "Top 25% revenue assumes well-positioned custom STR property with hot tub, "
+            "design features, and proximity to key attractions."
+        )
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 4 — REGULATIONS
@@ -709,7 +831,7 @@ with tab4:
         reg = STR_REGULATIONS[mkt]
         tax_rows.append({
             "Market": mkt,
-            "State Income Tax": "None (WY)" if "WY" in mkt else "4.4% (CO)",
+            "State Income Tax": "None (WY)" if "WY" in mkt else ("4.5% (KY)" if "KY" in mkt else "4.4% (CO)"),
             "Lodging Tax (est.)": f"{reg['lodging_tax_rate']*100:.1f}%",
             "Platform Collects?": "Yes" if reg["platform_collects_tax"] else "Partially",
             "Regulatory Risk": reg["regulatory_risk"],
@@ -727,6 +849,21 @@ with tab4:
     3. Register with the state for sales/lodging tax collection
     4. Obtain STR-specific insurance (standard homeowner's won't cover commercial rental activity)
     """)
+
+    st.divider()
+
+    # ── Bare land zoning & buildability ───────────────────────────────────────
+    with st.expander("🏗️ Bare Land — Zoning, Buildability & Utility Rules", expanded=False):
+        st.caption("Key regulatory considerations for buying land and building new in each market.")
+        for mkt in selected_markets:
+            if mkt not in LAND_DATA:
+                continue
+            ld = LAND_DATA[mkt]
+            with st.container():
+                st.markdown(f"**{mkt}**")
+                st.markdown(ld["zoning_notes"])
+                st.caption(f"Utilities: {ld['utilities_to_lot']} | Well + septic est.: ${ld['well_septic_cost']:,.0f}")
+                st.divider()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -988,6 +1125,32 @@ with tab5:
                 st.markdown(f"⚠️ {c_item}")
             st.info(v["verdict"])
 
+    st.divider()
+
+    # ── Bare land comparison table ─────────────────────────────────────────────
+    with st.expander("🏗️ Bare Land Market Comparison", expanded=False):
+        land_comp_rows = []
+        for mkt in selected_markets:
+            if mkt not in LAND_DATA:
+                continue
+            ld = LAND_DATA[mkt]
+            land_comp_rows.append({
+                "Market": mkt,
+                "Lot Price Range": f"${ld['lot_price_low']:,.0f}–${ld['lot_price_high']:,.0f}",
+                "Rural $/acre": f"${ld['acreage_price_per_acre']:,.0f}",
+                "Build Cost/sqft": f"${ld['new_build_cost_low']}–${ld['new_build_cost_high']}",
+                "Well + Septic": f"${ld['well_septic_cost']:,.0f}",
+                "Build Timeline": ld["build_timeline"],
+                "Land Availability": ld["land_availability"],
+                "No Zoning?": "Yes" if any(x in ld["zoning_notes"] for x in ["no zoning", "No county", "no county"]) else "Limited",
+            })
+        st.dataframe(pd.DataFrame(land_comp_rows).set_index("Market"), use_container_width=True)
+        st.caption(
+            "**Build-to-own ranking (best to hardest):** "
+            "Red River Gorge KY > Lander WY > Gilpin County CO > Alpine WY > Nederland CO. "
+            "KY and Lander WY offer the best land-to-finished-cabin economics with lowest regulatory friction."
+        )
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 6 — PERMITS & BUILD DIFFICULTY
@@ -1108,6 +1271,43 @@ with tab6:
         "In Boulder County / Nederland, plan for 10–15% of project cost just in permitting overhead. "
         "Gilpin County is a middle ground — lighter than Boulder, but mine/radon due diligence adds cost."
     )
+
+    st.divider()
+
+    # ── Bare land new construction permit costs ───────────────────────────────
+    with st.expander("🏗️ Bare Land — New Construction Permit & Utility Costs", expanded=False):
+        st.caption(
+            "Full cost breakdown for taking a raw lot to a finished STR cabin: "
+            "permits, utilities, engineering, and construction."
+        )
+        nc_rows = []
+        for mkt in selected_markets:
+            if mkt not in LAND_DATA or mkt not in PERMIT_DATA:
+                continue
+            ld = LAND_DATA[mkt]
+            pd_m = PERMIT_DATA[mkt]
+            lot_mid = int((ld["lot_price_low"] + ld["lot_price_high"]) / 2)
+            build_1200 = 1_200 * ld["new_build_cost_per_sqft"]
+            permit_fee = pd_m["new_home_2000sqft_fee"]
+            eng_cost = 5_000 if pd_m["engineer_stamp_required"] else 0
+            util_cost = ld["well_septic_cost"]
+            total = lot_mid + build_1200 + permit_fee + eng_cost + util_cost
+            nc_rows.append({
+                "Market": mkt,
+                "Lot (midpoint)": f"${lot_mid:,.0f}",
+                "1,200 sqft Build": f"${build_1200:,.0f}",
+                "Well + Septic": f"${util_cost:,.0f}",
+                "Permit Fees (est.)": f"${permit_fee:,.0f}",
+                "Engineering": f"${eng_cost:,.0f}" if eng_cost else "Not required",
+                "Total All-In": f"${total:,.0f}",
+                "Timeline": ld["build_timeline"],
+            })
+        st.dataframe(pd.DataFrame(nc_rows).set_index("Market"), use_container_width=True)
+        st.caption(
+            "Build cost based on 1,200 sqft at market-average rate. "
+            "Engineering cost is for typical structural work on new construction. "
+            "Does not include landscaping, driveway, or STR furnishing (~$15k–$30k additional)."
+        )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1247,6 +1447,51 @@ with tab7:
         "Colorado Avalanche Information Center: avalanche.state.co.us | "
         "EPA Radon Zone Map: epa.gov/radon/find-information-about-local-radon-zones"
     )
+
+    st.divider()
+
+    # ── Bare land environmental due diligence ─────────────────────────────────
+    with st.expander("🏗️ Bare Land Environmental Due Diligence", expanded=False):
+        st.caption(
+            "Raw land requires additional environmental checks beyond buying an existing home. "
+            "These steps are essential before committing to any bare land purchase."
+        )
+        land_dd_cols = st.columns(2)
+        with land_dd_cols[0]:
+            st.markdown("**Universal Bare Land Checks (All Markets):**")
+            st.markdown("""
+- [ ] **FEMA Flood Zone** — pull the FIRM map for the specific parcel (msc.fema.gov); ridgeline preferred
+- [ ] **Perc test** — county health dept must approve septic suitability before purchase; some lots won't pass
+- [ ] **Well yield test** — if a well exists, test GPM; if not, get a driller's estimate for depth/cost
+- [ ] **Slope analysis** — lots >20% slope dramatically increase foundation and excavation cost
+- [ ] **Soil bearing capacity** — important for foundation design; expansive or soft soils add cost
+- [ ] **Access / road easement** — verify legal access to the parcel; landlocked lots are a real risk
+- [ ] **Utility easements and setbacks** — check for power line easements that affect buildable area
+- [ ] **Title search** — confirm no encumbrances, liens, or adverse claims on the parcel
+- [ ] **Radon test** — once structure is built; radon is undetectable on raw land pre-build
+            """)
+        with land_dd_cols[1]:
+            st.markdown("**Market-Specific Bare Land Checks:**")
+            st.markdown("""
+**Lander, WY / Alpine, WY:**
+- [ ] Wyoming State Engineer's Office well permit (separate from building permit)
+- [ ] Verify no water rights conflicts on rural parcels
+- [ ] Hail-resistant roofing spec for insurance rating
+
+**Nederland, CO / Gilpin County, CO:**
+- [ ] CGS mine subsidence map (Gilpin — mandatory pre-purchase)
+- [ ] Colorado Geological Survey landslide hazard mapping for parcel
+- [ ] Boulder/Gilpin County defensible space pre-approval
+- [ ] Wildfire insurance quote before finalizing land purchase
+- [ ] HERS-rated energy design required from day one (CO energy code)
+
+**Red River Gorge, KY:**
+- [ ] Flood zone check is the #1 priority — avoid any AE/X zone creek bottoms
+- [ ] Perc test through Powell/Wolfe/Menifee County Health Dept
+- [ ] Verify legal road access — many rural KY parcels accessed via private easements
+- [ ] Check for any coal/mineral rights severance — third-party mineral owners exist in KY
+- [ ] Slope stability review for gorge-adjacent or cliff-face lots (landslide risk)
+            """)
 
 
 # ─── Footer ───────────────────────────────────────────────────────────────────
