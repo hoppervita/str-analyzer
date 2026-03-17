@@ -28,16 +28,17 @@ st.set_page_config(
 MARKETS = list(MARKET_STATS.keys())
 
 COLOR_MAP = {
-    "Lander, WY":        "#2196F3",   # blue
-    "Alpine, WY":        "#4CAF50",   # green
-    "Nederland, CO":     "#FF9800",   # orange
-    "Gilpin County, CO": "#9C27B0",   # purple
+    "Lander, WY":           "#2196F3",   # blue
+    "Alpine, WY":           "#4CAF50",   # green
+    "Nederland, CO":        "#FF9800",   # orange
+    "Gilpin County, CO":    "#9C27B0",   # purple
+    "Red River Gorge, KY":  "#F44336",   # red
 }
 
 # ─── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.title("🏔️ STR Analyzer")
-    st.caption("Lander WY · Alpine WY · Nederland CO")
+    st.caption("Lander WY · Alpine WY · Nederland CO · Gilpin CO · Red River Gorge KY")
     st.divider()
 
     st.subheader("Mortgage Parameters")
@@ -628,6 +629,13 @@ with tab3:
             "Bottom 25%": {"ADR": "$140",  "Occupancy": "28%",  "Annual Revenue": "~$14,000"},
             "YoY Trend":  "Insufficient data (newer market)",
         },
+        "Red River Gorge, KY": {
+            "Top 10%":    {"ADR": "$300+", "Occupancy": "85%+", "Annual Revenue": "~$110,000"},
+            "Top 25%":    {"ADR": "$225+", "Occupancy": "72%+", "Annual Revenue": "~$65,000"},
+            "Median":     {"ADR": "$175",  "Occupancy": "60%",  "Annual Revenue": "~$47,000"},
+            "Bottom 25%": {"ADR": "$110",  "Occupancy": "38%",  "Annual Revenue": "~$18,000"},
+            "YoY Trend":  "Insufficient data (rapidly maturing market; supply +218% YoY is key risk)",
+        },
     }
     tier_cols = st.columns(len(selected_markets))
     for i, mkt in enumerate(selected_markets):
@@ -808,7 +816,7 @@ with tab5:
             "License Required": "Yes" if reg_c["license_required"] else "No",
             "License Fee": f"${reg_c['license_fee']}/yr" if reg_c["license_fee"] else "Contact jurisdiction",
             "Lodging Tax": f"{reg_c['lodging_tax_rate']*100:.1f}%",
-            "State Income Tax": "None" if "WY" in mkt else "4.4%",
+            "State Income Tax": "None" if "WY" in mkt else ("4.5%" if "KY" in mkt else "4.4%"),
             "Regulatory Risk": reg_c["regulatory_risk"],
         }
 
@@ -926,6 +934,43 @@ with tab5:
                        "proper due diligence — they scare off casual buyers and create "
                        "your buying opportunity. Do geotechnical + radon review on any "
                        "specific parcel before offering.",
+        },
+        "Red River Gorge, KY": {
+            "rating": "⭐⭐⭐⭐⭐ Best Cash Flow — Lowest Barrier to Entry",
+            "pros": [
+                "⭐ Lowest entry prices of any market — starter cabins $175k–$300k",
+                "⭐ Most permissive STR environment researched — no permits, no licensing, no caps",
+                "⭐ No owner-occupancy requirement — pure investors fully welcome",
+                "⭐ Lowest property taxes in the US (~0.47% Powell County)",
+                "⭐ No wildfire risk — eastern KY deciduous forest; no insurance surcharges",
+                "Strongest cash-flow math: at $285k median, STR covers mortgage at avg occupancy",
+                "World-class rock climbing (4,000+ routes) = dedicated, multi-night climber clientele",
+                "October fall foliage = highest single demand period; weekends book months out",
+                "15–20M people within a 4-hour drive (Lexington, Cincinnati, Louisville, Indianapolis)",
+                "Cheap electricity — KY rates among lowest in US (~10 cents/kWh)",
+                "Your remodel skills create huge upside on distressed rural cabins",
+                "Easy permitting — 3/10 difficulty vs 8/10 for Nederland",
+            ],
+            "cons": [
+                "🌊 Flood risk is real — creek/valley properties can flood; ridgeline lots required",
+                "STR market maturing fast — supply grew +218% YoY (2025–2026); more competition ahead",
+                "Further from home (you're in Nederland, CO)",
+                "No ski/snowmobile season — winter is lower demand (offset by climbers in mild weather)",
+                "Kentucky 4.5% state income tax",
+                "AirDNA data is paywalled — market metrics are estimates, not confirmed",
+                "Thin data on exact occupancy rates — less certainty than the WY markets",
+                "Remote/rural area — due diligence requires in-person visit; limited comps",
+            ],
+            "verdict": "The most cash-flow-positive market of the five by a wide margin at entry prices. "
+                       "At $250k–$350k for a gorge-area cabin, STR income comfortably covers the mortgage "
+                       "at average occupancy, with meaningful upside on treehouse/luxury builds. "
+                       "The regulatory environment is the most permissive researched — no permits, no hassle. "
+                       "The key risk is flood zone: any property must be on a ridgeline or hillside, "
+                       "not a creek bottom. Your remodel background is a major asset here — "
+                       "distressed cabins in this market can be bought cheap and repositioned into "
+                       "high-earning boutique STRs. The rapidly growing supply is a real warning — "
+                       "differentiation (unique design, hot tub, gorge views, proximity to trailheads) "
+                       "is essential to reach top-quartile performance.",
         },
     }
 

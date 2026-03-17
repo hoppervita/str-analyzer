@@ -1,17 +1,19 @@
 """
-Embedded market data for Lander WY, Alpine WY, Nederland CO, and Gilpin County CO.
-Sources: AirROI (Jun 2024–Aug 2025), AirDNA, Zillow, Redfin, RocketHomes,
-         Avalara MyLodgeTax, SmartAsset, local government sites, WY/CO Dept of Revenue,
-         Colorado Geological Survey, FEMA, county building departments.
+Embedded market data for Lander WY, Alpine WY, Nederland CO, Gilpin County CO,
+and Red River Gorge KY (Powell/Wolfe/Menifee counties).
+Sources: AirROI (Jun 2024–Aug 2025), AirDNA, Zillow, Redfin, RocketHomes, RealtyTrac,
+         Avalara MyLodgeTax, SmartAsset, local government sites, WY/CO/KY Dept of Revenue,
+         Colorado Geological Survey, Kentucky DHBC, FEMA, NOAA NCEI, county building departments.
 Last updated: March 2026
 """
 
 # ── Zip codes ──────────────────────────────────────────────────────────────────
 ZIP_CODES = {
-    "Lander, WY":       "82520",
-    "Alpine, WY":       "83128",
-    "Nederland, CO":    "80466",
-    "Gilpin County, CO": "80422",  # unincorporated; also 80474 (Rollinsville), 80427 (Black Hawk)
+    "Lander, WY":           "82520",
+    "Alpine, WY":           "83128",
+    "Nederland, CO":        "80466",
+    "Gilpin County, CO":    "80422",  # unincorporated; also 80474 (Rollinsville), 80427 (Black Hawk)
+    "Red River Gorge, KY":  "40353",  # Slade/Powell County primary; also 41301 (Wolfe), 40322 (Menifee)
 }
 
 # ── Current real estate market ─────────────────────────────────────────────────
@@ -104,6 +106,30 @@ MARKET_STATS = {
             "⚠️ Mine subsidence + Zone 1 radon are the unique hazards requiring property-level due diligence."
         ),
     },
+    "Red River Gorge, KY": {
+        "median_price":       285_000,     # Powell County median ~$185k general; STR cabin market $250k–$500k; using blended
+        "price_per_sqft":     147,         # RealtyTrac Powell County 2025 (~$147 PSF; up 12% YoY)
+        "median_sqft":        1_940,
+        "dom":                60,          # Estimate; rural KY market typically 45–90 DOM
+        "inventory":          "Rapidly Growing",  # Powell County inventory +218% YoY (Feb 2026 vs Mar 2025)
+        "yoy_appreciation":   -0.10,       # Powell County median sold price -10% (inventory surge effect)
+        "property_tax_rate":  0.0047,      # ~0.47% effective (Powell County — one of lowest in US)
+        "hoa_common":         False,       # <2% HOA prevalence in rural eastern KY
+        "price_range_low":    150_000,
+        "price_range_high":   650_000,
+        "sqft_range_low":     700,
+        "sqft_range_high":    3_000,
+        "description": (
+            "Three-county STR region in eastern Kentucky: Powell, Wolfe & Menifee counties. "
+            "Heart of the Red River Gorge Geological Area (Daniel Boone National Forest) — "
+            "29,000 acres with 150+ natural arches and 4,000+ rock climbing routes. "
+            "Within a 4-hour drive of ~15–20 million people (Lexington 1hr, Cincinnati 2hr, Louisville 2hr). "
+            "October fall foliage + spring climbing are peak seasons. Effectively unregulated STR market "
+            "(no county-level STR ordinances). "
+            "⭐ Lowest property taxes and entry prices of any market researched. "
+            "⚠️ Flood risk is the primary hazard — ridgeline/hillside properties strongly preferred."
+        ),
+    },
 }
 
 # ── Historical median price (approximate, annualized) ─────────────────────────
@@ -124,6 +150,11 @@ PRICE_HISTORY = {
         # DataUSA 2024: $573,900 (+12% from $512,600 in 2023)
         2019: 310_000, 2020: 345_000, 2021: 450_000,
         2022: 520_000, 2023: 513_000, 2024: 574_000, 2025: 574_000,
+    },
+    "Red River Gorge, KY": {
+        # Powell County — general residential median; STR cabin market trades at significant premium
+        2019:  95_000, 2020: 115_000, 2021: 145_000,
+        2022: 175_000, 2023: 195_000, 2024: 205_000, 2025: 185_000,  # softening from +218% inventory surge
     },
 }
 
@@ -272,6 +303,43 @@ STR_DATA = {
         "pct_entire_home": 0.92,
         "dominant_unit_size": "2–3BR",
         "avg_guest_capacity": 5.2,
+    },
+    "Red River Gorge, KY": {
+        "avg_nightly_rate":      175,        # Blended ADR estimate ($150–$225 range; paywalled AirDNA unavailable)
+        "avg_occupancy":         0.60,       # Estimated 55–65%; gorge demand strong year-round
+        "peak_occupancy":        0.87,       # October fall foliage (~90% in peak weekends)
+        "off_peak_occupancy":    0.32,       # Jan–Feb low season
+        "active_listings":       400,        # Powell County Airbnb + VRBO combined estimate
+        "avg_annual_revenue":    47_000,     # Median 2BR cabin estimate ($45k–$55k range)
+        "top10_annual_revenue":  110_000,    # Treehouses and luxury cabins (estimate)
+        "best_property_type":    "Log cabin or treehouse with hot tub (2–3BR, ridgeline/gorge access)",
+        "peak_seasons":          ["Oct", "Apr", "May"],
+        "secondary_seasons":     ["Jun", "Jul", "Aug", "Sep"],
+        "slow_seasons":          ["Nov", "Dec", "Jan", "Feb", "Mar"],
+        "tourism_drivers": [
+            "Red River Gorge Geological Area (Daniel Boone NF) — 29,000 acres, 150+ natural arches",
+            "World-class rock climbing — 4,000+ routes; one of the largest sport climbing areas in North America",
+            "Natural Bridge State Resort Park — sandstone arch, sky lift, family appeal",
+            "October fall foliage — single highest-demand period; weekends book months in advance",
+            "Miguel's Pizza (Slade) — iconic 40-year climbing hub; anchor for the entire gorge economy",
+            "Red River — kayaking, canoeing, tubing; Class I–III whitewater in the gorge section",
+            "Daniel Boone National Forest — 700,000+ acres; hiking, hunting, dispersed camping",
+            "Within 4-hour drive of ~15–20M people: Lexington (1hr), Cincinnati (2hr), Louisville (2hr)",
+            "Dirtbag Fest (annual climbing festival) + Red River Gorge Film Festival",
+            "Torrent Falls Climbing Adventure — commercial via ferrata and zip line",
+        ],
+        "monthly_revenue": {
+            "Jan": 1_500, "Feb": 1_800, "Mar": 3_200, "Apr": 4_500,
+            "May": 5_000, "Jun": 4_200, "Jul": 4_500, "Aug": 4_000,
+            "Sep": 4_200, "Oct": 6_500, "Nov": 2_800, "Dec": 2_800,
+        },
+        "seasonality": "October fall foliage is peak (nearly sold-out). Spring climbing (Apr–May) is strong second. "
+                       "Summer is solid family hiking season. Jan–Feb is lowest; serious climbers still come in mild weather.",
+        "yoy_trend": None,       # Insufficient reliable data; market maturing (200%+ supply growth is a warning sign)
+        "avg_booking_lead_days": 35,
+        "pct_entire_home": 0.95,
+        "dominant_unit_size": "2BR cabin/treehouse",
+        "avg_guest_capacity": 4.5,
     },
 }
 
@@ -430,6 +498,45 @@ STR_REGULATIONS = {
                             "Boulder County. Primary risks are wildfire insurance and physical hazards "
                             "(radon, mine subsidence) rather than regulatory barriers.",
     },
+    "Red River Gorge, KY": {
+        "status": "⭐ Effectively Unregulated — No County STR Ordinance",
+        "license_required": False,       # No county-level STR licensing identified in Powell, Wolfe, or Menifee
+        "license_fee": None,
+        "owner_occupancy_required": False,
+        "cap_on_units": None,
+        "lodging_tax_rate": 0.09,        # KY state sales tax 6% + local transient room tax ~3% = ~9% total
+        "sales_tax_rate":  0.06,         # Kentucky state sales tax only; no local sales tax in KY
+        "platform_collects_tax": True,   # Airbnb/VRBO collect and remit KY 6% state sales tax (marketplace facilitator law 2019)
+        "tax_detail": (
+            "Kentucky state sales tax: 6% (applies to all lodging statewide — no local sales tax surcharges). "
+            "Local transient room tax: ~3% in active tourism counties (Powell/Wolfe); verify current rate. "
+            "Total effective lodging tax: ~7–9%. "
+            "Airbnb/VRBO collect and remit KY state sales tax automatically. "
+            "Local transient room tax may require host to register separately with county — confirm with Powell County Fiscal Court. "
+            "Kentucky state income tax: 4.5% flat rate on net rental income."
+        ),
+        "notes": [
+            "⭐ NO county-level STR ordinance in Powell, Wolfe, or Menifee County as of early 2026.",
+            "⭐ NO owner-occupancy requirement anywhere in the tri-county area.",
+            "⭐ NO permit, registration, or licensing required at county level for STRs.",
+            "No county-wide zoning in unincorporated areas — minimal bureaucratic friction.",
+            "Kentucky has NO statewide STR licensing law — regulation is entirely local, and none exists here.",
+            "Political environment (rural, property-rights oriented) makes new restrictive STR legislation very unlikely.",
+            "Airbnb acts as marketplace facilitator for KY — automatically collects 6% state sales tax.",
+            "Hosts should confirm whether local transient room tax is collected by platform or requires self-remittance.",
+            "No HOA prevalence in area (<2% of rural eastern KY properties).",
+            "No restrictions from Daniel Boone National Forest on private property STRs.",
+            "Kentucky state income tax is 4.5% flat rate (vs WY's 0%, CO's 4.4%).",
+            "City limits of Stanton/Campton/Frenchburg have small residential zones — no STR rules identified for those either.",
+        ],
+        "ordinance_ref": "Powell County Fiscal Court: (606) 663-6622 | Wolfe County: (606) 668-3515",
+        "contact": "Powell County Fiscal Court: (606) 663-6622 | KY DHBC: (502) 573-4974",
+        "regulatory_risk": "Very Low",
+        "risk_explanation": "The most permissive regulatory environment of any market researched. "
+                            "No permits, no licensing, no owner-occupancy requirement, no caps. "
+                            "Rural Kentucky counties have no zoning and no appetite for STR regulation. "
+                            "Primary risk is simply confirming local transient room tax remittance obligations.",
+    },
 }
 
 # ── Typical operating costs (STR) ─────────────────────────────────────────────
@@ -496,6 +603,23 @@ STR_OPERATING_COSTS = {
                              "Radon mitigation system may be required ($800–$2,500 one-time install). "
                              "Mine subsidence inspection recommended before purchase.",
     },
+    "Red River Gorge, KY": {
+        "mgmt_fee_pct":      0.25,       # 25% typical in gorge market (full-service property management)
+        "cleaning_per_stay": 100,        # $75–$150 per turnover depending on cabin size
+        "avg_stays_per_mo":  6,
+        "supplies_monthly":  75,
+        "utilities_monthly": 200,        # KY electricity among cheapest in US (~10 cents/kWh); all-electric common
+        "insurance_annual":  2_500,      # STR-specific policy $2,000–$3,500; no wildfire surcharge in eastern KY
+        "maintenance_pct":   0.01,       # 1% of home value/year
+        "platform_fee_pct":  0.03,       # Airbnb host fee
+        "property_tax_note": "Powell County effective rate ~0.47% — among the lowest in the US. "
+                             "$285k cabin: ~$1,340/yr. No HOA fees in virtually all rural properties.",
+        "wildfire_risk":     "Low",
+        "insurance_note":    "Eastern KY is a low wildfire risk — no surcharges from major carriers. "
+                             "Standard STR policy $2,000–$3,500/yr. "
+                             "⚠️ If property is near a creek or river bottom, add NFIP flood insurance ($700–$2,500/yr). "
+                             "Ridgeline/hillside properties avoid flood zone requirement.",
+    },
 }
 
 # ── Sample property listings (representative range) ───────────────────────────
@@ -523,6 +647,12 @@ SAMPLE_PROPERTIES = {
         {"label": "Mid — 3bd/2ba mountain home",           "price": 500_000, "sqft": 1_600, "beds": 3, "baths": 2},
         {"label": "Nice — 3bd/2ba updated",                "price": 625_000, "sqft": 2_000, "beds": 3, "baths": 2},
         {"label": "Premium — 4bd/3ba with acreage",        "price": 850_000, "sqft": 2_800, "beds": 4, "baths": 3},
+    ],
+    "Red River Gorge, KY": [
+        {"label": "Starter — 2bd/1ba rural cabin/fixer",         "price": 175_000, "sqft": 900,   "beds": 2, "baths": 1},
+        {"label": "Mid — 2bd/2ba cabin near gorge",              "price": 300_000, "sqft": 1_200,  "beds": 2, "baths": 2},
+        {"label": "Nice — 3bd/2ba gorge-view cabin + hot tub",   "price": 425_000, "sqft": 1_600,  "beds": 3, "baths": 2},
+        {"label": "Premium — 3bd/2ba luxury treehouse / cabin",  "price": 600_000, "sqft": 1_800,  "beds": 3, "baths": 2},
     ],
 }
 
@@ -643,6 +773,37 @@ PERMIT_DATA = {
         ],
         "contact": "Gilpin County Community Development: (303) 582-5214",
         "fee_schedule_url": "gilpincounty.org/community-development (call to confirm — website may be down)",
+    },
+    "Red River Gorge, KY": {
+        "difficulty_rating": 3,
+        "difficulty_label":  "Easy-Moderate — State Code Required, Rural Cooperation",
+        "timeline_typical":  "3–8 weeks (permit approval); inspections scheduled at each construction phase",
+        "online_portal":     False,
+        "engineer_stamp_required": True,   # KRC/IRC requires structural stamp; less extensive than CO
+        "new_home_2000sqft_fee":   600,    # KY DHBC state fee schedule; residential new construction ~$200–$600
+        "major_remodel_100k_fee":  400,    # Estimate; state fee + local inspection fees
+        "addition_fee_per_sqft":   0.30,
+        "aduAllowed":              True,
+        "variance_difficulty":     "Easy",
+        "notes": [
+            "Kentucky has a MANDATORY statewide building code (Kentucky Residential Code based on 2018 IRC).",
+            "State-level enforcement: DHBC (Dept of Housing, Buildings and Construction) handles permits "
+            "for rural counties without local building departments.",
+            "Powell, Wolfe, and Menifee counties do NOT operate full local building departments — "
+            "permits route through the DHBC regional inspection program.",
+            "⭐ NO county-wide zoning in any of the three counties (unincorporated areas).",
+            "⭐ NO STR-specific construction requirements — standard residential code sufficient.",
+            "Permit timeline 3–8 weeks for approval; inspection scheduling may take 1–3 weeks per phase.",
+            "Septic permit via county health department: $200–$600; new system $8,000–$18,000.",
+            "Well permit via KY Division of Water: $200–$400; new well $6,000–$15,000.",
+            "Ground snow load: only 10–20 psf (vs 40–60+ psf in CO mountain markets) — much lower structural cost.",
+            "No architectural stamp required for typical single-family residential scope.",
+            "Inspectors are professional but stretched thin in rural areas — schedule inspection calls promptly.",
+            "State setback minimums apply (10 ft side, ~20 ft front from ROW) but no zoning enforcement in unincorporated areas.",
+            "Total permit/soft costs for a new cabin build: typically $1,500–$4,000 all-in.",
+        ],
+        "contact": "KY DHBC: (502) 573-4974 | Powell County Judge-Executive: (606) 663-6622",
+        "fee_schedule_url": "dhbc.ky.gov — Kentucky Department of Housing, Buildings and Construction",
     },
 }
 
@@ -1055,6 +1216,144 @@ ENVIRONMENTAL_RISKS = {
                 ),
                 "insurance_impact": "Not standard coverage",
                 "action": "CGS hazard map review for specific parcels.",
+            },
+        },
+    },
+    "Red River Gorge, KY": {
+        "overall_risk_score": 5,
+        "overall_label": "Moderate (flood risk is key — avoid creek bottoms; ridgeline properties strongly preferred)",
+        "risks": {
+            "Wildfire": {
+                "level": "Low",
+                "score": 1,
+                "details": (
+                    "NOAA NCEI Storm Events 2000–2024: ZERO officially recorded wildfire events "
+                    "in Powell County or Wolfe County. Eastern Kentucky's deciduous hardwood forests "
+                    "have high fuel moisture (48–54 inches annual rainfall), making large wildfire events "
+                    "extremely rare. No wildfire surcharges from insurance carriers for this area."
+                ),
+                "insurance_impact": "None — major advantage over Colorado mountain markets",
+                "action": "Not a material concern. Standard STR policy is sufficient.",
+            },
+            "Flood": {
+                "level": "High",
+                "score": 7,
+                "details": (
+                    "The Red River has a documented history of flash flooding — the primary risk for "
+                    "gorge-area properties. Documented events: May 2010 (Stanton, Virden, Waltersville), "
+                    "June 2019 flash flood near Nada ($150k damage), July 2021 flash flood in Frenchburg "
+                    "($2M damage), August 2021 Wolfe County flash flood. "
+                    "The July 2022 catastrophic floods (~50 miles east in Breathitt/Knott/Letcher counties) "
+                    "killed 40+ people and caused billions in damage, raising regional risk awareness. "
+                    "⭐ KEY RULE: Ridgeline and hillside properties carry far lower flood risk. "
+                    "Creek bottoms and valley floors in gorge drainages are high-risk."
+                ),
+                "insurance_impact": "NFIP flood insurance $700–$2,500/yr if in FEMA AE/X zone; required by lenders",
+                "action": "Verify FEMA flood zone map (msc.fema.gov) for any specific parcel. "
+                          "Avoid creek bottom and low-lying valley properties. "
+                          "Prefer ridgeline lots — they command higher STR rates AND lower risk.",
+            },
+            "Radon": {
+                "level": "Moderate",
+                "score": 4,
+                "details": (
+                    "Most of eastern Kentucky is EPA Zone 2 (predicted avg indoor radon 2–4 pCi/L). "
+                    "Red River Gorge area is primarily Pottsville Sandstone geology — "
+                    "lower radon potential than uranium-bearing granites or black shales found elsewhere in KY. "
+                    "Not a primary disqualifier but standard testing is advised."
+                ),
+                "insurance_impact": "None — health risk",
+                "action": "Standard radon test during inspection period. Mitigate if above 4 pCi/L ($800–$2,500).",
+            },
+            "Mine Subsidence": {
+                "level": "Low",
+                "score": 1,
+                "details": (
+                    "Red River Gorge is Pottsville Sandstone and conglomerate — NOT a historic underground "
+                    "coal or hard-rock mining area. The gorge geology is a Cumberland Plateau sandstone sequence. "
+                    "No mine subsidence risk identified for Powell, Wolfe, or Menifee counties. "
+                    "This is a significant advantage over Gilpin County, CO."
+                ),
+                "insurance_impact": "None",
+                "action": "Not a concern for gorge area properties.",
+            },
+            "Avalanche": {
+                "level": "Low",
+                "score": 1,
+                "details": (
+                    "Eastern Kentucky has no avalanche terrain. The gorge cliffs are sandstone "
+                    "with maximum relief of ~300–400 feet — no snow accumulation adequate for avalanche. "
+                    "Not applicable."
+                ),
+                "insurance_impact": "None",
+                "action": "N/A",
+            },
+            "Hail": {
+                "level": "Moderate",
+                "score": 5,
+                "details": (
+                    "Kentucky receives periodic significant hail events. NOAA NCEI: the March 2012 "
+                    "storm system that included the Menifee County EF3 tornado also produced 3-inch hail "
+                    "near Campton ($2M combined damage). Eastern KY sees less hail than central KY or "
+                    "the Midwest corn belt, but events do occur and should be covered."
+                ),
+                "insurance_impact": "Factor into homeowners/STR policy; ensure adequate coverage",
+                "action": "Class 4 impact-resistant roofing is a reasonable upgrade for new builds.",
+            },
+            "Snow Load": {
+                "level": "Low",
+                "score": 2,
+                "details": (
+                    "Eastern Kentucky receives ~8–20 inches of snow annually. "
+                    "ASCE 7 design ground snow load for this area: approximately 10–20 psf. "
+                    "Significantly lower than any of the Colorado or Wyoming markets (40–150+ psf). "
+                    "Standard stick-frame construction handles these loads easily. "
+                    "Ice storms (freezing rain) are a more notable hazard than snow accumulation — "
+                    "proper insulation and steep-pitch roofs reduce risk."
+                ),
+                "insurance_impact": "Minimal — far below CO/WY structural requirements",
+                "action": "Steep-pitch roofs common in cabin design shed ice well. "
+                          "Inspect older homes for ice dam damage to eaves.",
+            },
+            "Earthquake": {
+                "level": "Low",
+                "score": 2,
+                "details": (
+                    "Eastern Kentucky has low seismic hazard. The region is not near the New Madrid "
+                    "Seismic Zone (which affects western KY) or any active fault systems. "
+                    "Not a material concern for standard residential construction."
+                ),
+                "insurance_impact": "None",
+                "action": "Not a primary concern.",
+            },
+            "Landslide": {
+                "level": "Moderate",
+                "score": 5,
+                "details": (
+                    "The gorge is characterized by steep sandstone cliffs, narrow valleys, and unstable "
+                    "slopes. Debris flows have been documented during heavy rain events in Wolfe County (2023). "
+                    "Rockfall near cliff edges is a hazard for structures built within ~100 feet of gorge cliffs. "
+                    "Hollow fills (former coal-mining debris) in eastern KY can have slope stability issues. "
+                    "Properties near active slide scars or gorge cliff edges carry elevated risk."
+                ),
+                "insurance_impact": "Not standard coverage; specialty policy may be available",
+                "action": "Avoid building near active slide scars, hollow fills, or within 100 ft of cliff edges. "
+                          "Geotechnical review recommended for steep lots (>15% slope) or cliff-adjacent parcels.",
+            },
+            "Tornado": {
+                "level": "Moderate",
+                "score": 4,
+                "details": (
+                    "NOAA NCEI records: Wolfe County — 2 tornadoes (EF1 Feb 2011, EF0 Apr 2011). "
+                    "Menifee County — EF3 tornado on March 2, 2012 (2 deaths, 30 injuries, $2M damage near Mariba). "
+                    "Powell County — low documented tornado count. Eastern KY is at the eastern edge of "
+                    "the US tornado belt; risk is real but lower than western/central KY. "
+                    "The EF3 event is the most significant risk data point — log cabin and light wood-frame "
+                    "construction provides no protection from EF2+ tornadoes."
+                ),
+                "insurance_impact": "Include wind/tornado coverage in STR policy; standard in most homeowners policies",
+                "action": "Consider interior safe room for occupied STR properties. "
+                          "Standard construction handles EF0–EF1; EF3+ events are rare but documented.",
             },
         },
     },
